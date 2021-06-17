@@ -230,14 +230,12 @@ class Application(tk.Frame):
         else:
             self.selected_index += 1
         self.publish_item()
-        self.status_label.config(text=str(self.selected_index))
 
     def prev_item(self):
         if self.selected_index == 0:
             self.selected_index = self.max
         else:
             self.selected_index -= 1
-        self.status_label.config(text=str(self.selected_index))
         self.publish_item()
 
     def publish_item(self):
@@ -352,7 +350,7 @@ root.geometry("650x535")
 root.title("PDF2CSV")
 root.resizable(False, False)
 path = os.path.abspath(os.getcwd())
-icon = path + "\\pdf2csv.gif"
+icon = path + "\\img\\pdf2csv.gif"
 img = tk.PhotoImage(file=icon)
 root.tk.call('wm', 'iconphoto', root._w, img)
 app = Application(root)

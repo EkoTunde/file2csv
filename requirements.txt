@@ -1,7 +1,13 @@
+altgraph==0.17
 autopep8==1.5.7
 flake8==3.9.2
+future==0.18.2
 mccabe==0.6.1
+pefile==2021.5.24
 pycodestyle==2.7.0
 pyflakes==2.3.1
+pyinstaller==4.3
+pyinstaller-hooks-contrib==2021.1
 PyMuPDF==1.18.14
+pywin32-ctypes==0.2.0
 toml==0.10.2
