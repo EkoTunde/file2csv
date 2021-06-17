@@ -7,3 +7,5 @@ main.SED
 main.spec
 *.pyo
 *.DDF
+*.zip
+*.exe
