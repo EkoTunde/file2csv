@@ -297,8 +297,8 @@ class Application(tk.Frame):
         if file is None:
             return
 
-        titles = "client_name, client_id, quantity, direccion, " + \
-            "zona, subzona, codigo_postal, id_envio, id_venta, destinatario\n"
+        titles = "client_name,client_id,quantity,direccion," + \
+            "zona,subzona,codigo_postal,id_envio,id_venta,destinatario\n"
         file.write(titles)
         for shipment in self.shipments:
             result = self.shipment_to_csv_string(shipment)
