@@ -3,7 +3,7 @@ from pathlib import Path
 from shipment import Shipment
 import subprocess
 import tkinter as tk
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
 from extractor import PDF2CSV
 
 
@@ -186,16 +186,19 @@ class Application(tk.Frame):
         return
 
     def select_file(self):
-        downloads_path = str(Path.home() / "Downloads")
-        self.filename = filedialog.askopenfilename(
-            # initialdir="C:/", title="Seleccioná un archivo PDF",
-            initialdir=downloads_path, title="Seleccioná un archivo PDF",
-            filetypes=(("PDF", "*.pdf"), ("all", "*,*"))
-        )
-        self.entry_file.delete(0, 'end')
-        self.entry_file.insert(0, self.filename)
-        self.show_in_hold()
-        return
+        try:
+            downloads_path = str(Path.home() / "Downloads")
+            self.filename = filedialog.askopenfilename(
+                # initialdir="C:/", title="Seleccioná un archivo PDF",
+                initialdir=downloads_path, title="Seleccioná un archivo PDF",
+                filetypes=(("PDF", "*.pdf"), ("all", "*,*"))
+            )
+            self.entry_file.delete(0, 'end')
+            self.entry_file.insert(0, self.filename)
+            self.show_in_hold()
+            return
+        except Exception as e:
+            self.popup(e)
 
     def convert(self):
         self.shipments = []
@@ -207,8 +210,8 @@ class Application(tk.Frame):
             self.publish_item()
             self.show_success()
         except Exception as e:
-            print(e)
             self.show_error()
+            self.popup(e)
 
     def show_error(self):
         self.status_label.config(
@@ -268,46 +271,58 @@ class Application(tk.Frame):
             entry.delete(0, 'end')
 
     def save_item(self):
-        self.shipments[self.selected_index].client_name = \
-            self.cliente_entry.get()
-        self.shipments[self.selected_index].client_id = \
-            self.id_cliente_entry.get()
-        self.shipments[self.selected_index].quantity = \
-            self.cantidad_entry.get()
-        self.shipments[self.selected_index].direccion = \
-            self.domicilio_entry.get()
-        self.shipments[self.selected_index].ciudad = \
-            self.zona_entry.get()
-        self.shipments[self.selected_index].barrio = \
-            self.subzona_entry.get()
-        self.shipments[self.selected_index].codigo_postal = \
-            self.codigo_postal_entry.get()
-        self.shipments[self.selected_index].id_envio = \
-            self.id_envio_entry.get()
-        self.shipments[self.selected_index].id_venta = \
-            self.id_venta_entry.get()
-        self.shipments[self.selected_index].destinatario = \
-            self.destinatario_entry.get()
+        try:
+            self.shipments[self.selected_index].client_name = \
+                self.cliente_entry.get()
+            self.shipments[self.selected_index].client_id = \
+                self.id_cliente_entry.get()
+            self.shipments[self.selected_index].quantity = \
+                self.cantidad_entry.get()
+            self.shipments[self.selected_index].direccion = \
+                self.domicilio_entry.get()
+            self.shipments[self.selected_index].ciudad = \
+                self.zona_entry.get()
+            self.shipments[self.selected_index].barrio = \
+                self.subzona_entry.get()
+            self.shipments[self.selected_index].codigo_postal = \
+                self.codigo_postal_entry.get()
+            self.shipments[self.selected_index].id_envio = \
+                self.id_envio_entry.get()
+            self.shipments[self.selected_index].id_venta = \
+                self.id_venta_entry.get()
+            self.shipments[self.selected_index].destinatario = \
+                self.destinatario_entry.get()
+            return
+        except Exception as e:
+            self.popup(e)
+
+    def popup(self, message):
+        error_title = "Ha ocurrido un error"
+        error_message = "Error: " + message
+        messagebox.showerror(error_title, error_message)
         return
 
     def export_to_csv(self):
-        file = filedialog.asksaveasfile(mode='w', defaultextension=".csv")
+        try:
+            file = filedialog.asksaveasfile(mode='w', defaultextension=".csv")
 
-        # asksaveasfile return `None` if dialog closed with "cancel".
-        if file is None:
-            return
+            # asksaveasfile return `None` if dialog closed with "cancel".
+            if file is None:
+                return
 
-        titles = "client_name,client_id,quantity,direccion," + \
-            "zona,subzona,codigo_postal,id_envio,id_venta,destinatario\n"
-        file.write(titles)
-        for shipment in self.shipments:
-            result = self.shipment_to_csv_string(shipment)
-            file.write(result)
-        file.close()
-        name = file.name
-        last_slash_index = name.rfind('/')
-        path = name[:last_slash_index]
-        return self.explore(path)
+            titles = "client_name,client_id,quantity,direccion," + \
+                "zona,subzona,codigo_postal,id_envio,id_venta,destinatario\n"
+            file.write(titles)
+            for shipment in self.shipments:
+                result = self.shipment_to_csv_string(shipment)
+                file.write(result)
+            file.close()
+            name = file.name
+            last_slash_index = name.rfind('/')
+            path = name[:last_slash_index]
+            return self.explore(path)
+        except Exception as e:
+            self.popup(e)
 
     def shipment_to_csv_string(self, shipment: Shipment) -> str:
         return \
