@@ -298,7 +298,7 @@ class Application(tk.Frame):
 
     def popup(self, message):
         error_title = "Ha ocurrido un error"
-        error_message = "Error: " + message
+        error_message = "Error: " + str(message)
         messagebox.showerror(error_title, error_message)
         return
 
