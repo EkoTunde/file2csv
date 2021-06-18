@@ -242,25 +242,25 @@ class Application(tk.Frame):
         self.shipment_no.config(text=f'Envío N.° {self.selected_index+1}')
         self.clear_entries()
         self.cliente_entry.insert(
-            0, str(self.shipments[self.selected_index].quantity))
+            0, str(self.shipments[self.selected_index].client_name))
         self.id_cliente_entry.insert(
-            0, str(self.shipments[self.selected_index].id_venta))
+            0, str(self.shipments[self.selected_index].client_id))
         self.cantidad_entry.insert(
-            0, str(self.shipments[self.selected_index].id_envio))
+            0, str(self.shipments[self.selected_index].quantity))
         self.domicilio_entry.insert(
-            0, str(self.shipments[self.selected_index].ciudad))
-        self.zona_entry.insert(
-            0, str(self.shipments[self.selected_index].barrio))
-        self.subzona_entry.insert(
             0, str(self.shipments[self.selected_index].direccion))
+        self.zona_entry.insert(
+            0, str(self.shipments[self.selected_index].ciudad))
+        self.subzona_entry.insert(
+            0, str(self.shipments[self.selected_index].barrio))
         self.codigo_postal_entry.insert(
             0, str(self.shipments[self.selected_index].codigo_postal))
         self.id_envio_entry.insert(
-            0, str(self.shipments[self.selected_index].destinatario))
+            0, str(self.shipments[self.selected_index].id_envio))
         self.id_venta_entry.insert(
-            0, str(self.shipments[self.selected_index].client_name))
+            0, str(self.shipments[self.selected_index].id_venta))
         self.destinatario_entry.insert(
-            0, str(self.shipments[self.selected_index].client_id))
+            0, str(self.shipments[self.selected_index].destinatario))
         return
 
     def clear_entries(self):
@@ -268,25 +268,25 @@ class Application(tk.Frame):
             entry.delete(0, 'end')
 
     def save_item(self):
-        self.shipments[self.selected_index].quantity = \
+        self.shipments[self.selected_index].client_name = \
             self.cliente_entry.get()
-        self.shipments[self.selected_index].id_venta = \
+        self.shipments[self.selected_index].client_id = \
             self.id_cliente_entry.get()
-        self.shipments[self.selected_index].id_envio = \
+        self.shipments[self.selected_index].quantity = \
             self.cantidad_entry.get()
-        self.shipments[self.selected_index].ciudad = \
-            self.domicilio_entry.get()
-        self.shipments[self.selected_index].barrio = \
-            self.zona_entry.get()
         self.shipments[self.selected_index].direccion = \
+            self.domicilio_entry.get()
+        self.shipments[self.selected_index].ciudad = \
+            self.zona_entry.get()
+        self.shipments[self.selected_index].barrio = \
             self.subzona_entry.get()
         self.shipments[self.selected_index].codigo_postal = \
             self.codigo_postal_entry.get()
-        self.shipments[self.selected_index].destinatario = \
+        self.shipments[self.selected_index].id_envio = \
             self.id_envio_entry.get()
-        self.shipments[self.selected_index].client_name = \
+        self.shipments[self.selected_index].id_venta = \
             self.id_venta_entry.get()
-        self.shipments[self.selected_index].client_id = \
+        self.shipments[self.selected_index].destinatario = \
             self.destinatario_entry.get()
         return
 
@@ -298,7 +298,7 @@ class Application(tk.Frame):
             return
 
         titles = "client_name, client_id, quantity, direccion, " + \
-            "ciudad, barrio, codigo_postal, id_envio, id_venta, destinatario\n"
+            "zona, subzona, codigo_postal, id_envio, id_venta, destinatario\n"
         file.write(titles)
         for shipment in self.shipments:
             result = self.shipment_to_csv_string(shipment)
@@ -310,16 +310,18 @@ class Application(tk.Frame):
         return self.explore(path)
 
     def shipment_to_csv_string(self, shipment: Shipment) -> str:
-        return str(shipment.quantity).replace(", ", "") + "," + \
-            str(shipment.id_venta).replace(", ", "") + "," + \
-            str(shipment.id_envio).replace(", ", "") + "," + \
+        return \
+            str(shipment.client_name).replace(", ", "") + "," + \
+            str(shipment.client_id).replace(", ", "") + "," + \
+            str(shipment.quantity).replace(", ", "") + "," + \
+            str(shipment.direccion).replace(", ", "") + "," + \
             str(shipment.ciudad).replace(", ", "") + "," + \
             str(shipment.barrio).replace(", ", "") + "," + \
-            str(shipment.direccion).replace(", ", "") + "," + \
             str(shipment.codigo_postal).replace(", ", "") + "," + \
-            str(shipment.destinatario).replace(", ", "") + "," + \
-            str(shipment.client_name).replace(", ", "") + "," + \
-            str(shipment.client_id).replace(", ", "") + "\n"
+            str(shipment.id_envio).replace(", ", "") + "," + \
+            str(shipment.id_venta).replace(", ", "") + "," + \
+            str(shipment.destinatario).replace(", ", "") + \
+            "\n"
 
     def explore(self, path):
         # explorer would choke on forward slashes
