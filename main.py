@@ -3,7 +3,7 @@ from pathlib import Path
 from shipment import Shipment
 import subprocess
 import tkinter as tk
-from tkinter import filedialog, messagebox
+from tkinter import Button, Toplevel, filedialog, messagebox, Text, INSERT
 from extractor import PDF2CSV
 
 
@@ -17,6 +17,7 @@ class Application(tk.Frame):
         self.selected_index = 0
         self.create_widgets()
         self.create_converter()
+        self.pdf_scanned = False
 
     def create_converter(self):
         self.converter = PDF2CSV()
@@ -177,9 +178,33 @@ class Application(tk.Frame):
         self.next_btn.grid(row=11, column=2, sticky="e")
 
         # Export to CSV
-        self.export_btn = tk.Button(
-            self, text="Exportar a CSV", command=self.export_to_csv)
-        self.export_btn.grid(row=3, column=0, columnspan=4, sticky="we")
+        # self.export_btn = tk.Button(
+        #     self, text="Exportar a CSV", command=self.export_to_csv)
+        # self.export_btn.grid(row=3, column=0, columnspan=4, sticky="we")
+
+        # Export frame
+        self.export_frame = tk.LabelFrame(
+            self, text="Exportación", pady=10, padx=10)
+        self.export_frame.grid(row=3, column=0, columnspan=4, sticky="we")
+
+        # Export to CSV
+        explanation = "Exportar a CSV"
+        self.export_csv = tk.Button(
+            self.export_frame, text='Exportar a CSV', padx=15,
+            command=lambda: self.export('csv'))
+        self.export_csv.pack(side=tk.LEFT)
+
+        # Export to TXT
+        self.export_txt = tk.Button(
+            self.export_frame, text='Exportar a TXT', padx=15,
+            command=lambda: self.export('txt'))
+        self.export_txt.pack(side=tk.LEFT)
+
+        # Open export string as dialog
+        self.export_dialog = tk.Button(
+            self.export_frame, text='Ventana de diálogo', padx=15,
+            command=self.open_as_dialog)
+        self.export_dialog.pack(side=tk.LEFT)
 
         self.columnconfigure(1, weight=1)
 
@@ -201,17 +226,22 @@ class Application(tk.Frame):
             self.popup(e)
 
     def convert(self):
-        self.shipments = []
-        self.clear_entries()
-        try:
-            self.show_in_progress()
-            self.shipments = self.converter.convert(self.entry_file.get())
-            self.max = len(self.shipments)-1
-            self.publish_item()
-            self.show_success()
-        except Exception as e:
-            self.show_error()
-            self.popup(e)
+        if len(self.entry_file.get()) > 0:
+            self.shipments = []
+            self.clear_entries()
+            try:
+                self.show_in_progress()
+                self.shipments = self.converter.convert(self.entry_file.get())
+                self.max = len(self.shipments)-1
+                self.publish_item()
+                self.show_success()
+                self.pdf_scanned = True
+            except Exception as e:
+                self.pdf_scanned = False
+                self.show_error()
+                self.popup(e)
+        else:
+            self.popup("Ningún archivo seleccionado para escanear.")
 
     def show_error(self):
         self.status_label.config(
@@ -228,6 +258,8 @@ class Application(tk.Frame):
         self.status_label.config(text=t, fg="#008000")
 
     def next_item(self):
+        if not self.pdf_scanned:
+            return self.popup("Todavía no se escaneó ningún PDF")
         if self.selected_index == self.max:
             self.selected_index = 0
         else:
@@ -235,6 +267,8 @@ class Application(tk.Frame):
         self.publish_item()
 
     def prev_item(self):
+        if not self.pdf_scanned:
+            return self.popup("Todavía no se escaneó ningún PDF")
         if self.selected_index == 0:
             self.selected_index = self.max
         else:
@@ -271,6 +305,8 @@ class Application(tk.Frame):
             entry.delete(0, 'end')
 
     def save_item(self):
+        if not self.pdf_scanned:
+            return self.popup("Todavía no se escaneó ningún PDF")
         try:
             self.shipments[self.selected_index].client_name = \
                 self.cliente_entry.get()
@@ -303,8 +339,19 @@ class Application(tk.Frame):
         return
 
     def export_to_csv(self):
+        return self.export('csv')
+
+    def export_to_txt(self):
+        return self.export('txt')
+
+    def export(self, extension: str):
+        if not self.pdf_scanned:
+            return self.popup("Todavía no se escaneó ningún PDF")
         try:
-            file = filedialog.asksaveasfile(mode='w', defaultextension=".csv")
+            file = filedialog.asksaveasfile(
+                mode='w', defaultextension=f'*.{extension}',
+                filetypes=((extension.upper(), f'*.{extension}'),
+                           ("Todos los archivos", "*.*")))
 
             # asksaveasfile return `None` if dialog closed with "cancel".
             if file is None:
@@ -313,9 +360,7 @@ class Application(tk.Frame):
             titles = "client_name,client_id,quantity,direccion," + \
                 "zona,subzona,codigo_postal,id_envio,id_venta,destinatario\n"
             file.write(titles)
-            for shipment in self.shipments:
-                result = self.shipment_to_csv_string(shipment)
-                file.write(result)
+            file.write(self.shipments_as_text())
             file.close()
             name = file.name
             last_slash_index = name.rfind('/')
@@ -323,6 +368,30 @@ class Application(tk.Frame):
             return self.explore(path)
         except Exception as e:
             self.popup(e)
+
+    def shipments_as_text(self):
+        result = "".join([self.shipment_to_csv_string(shipment)
+                          for shipment in self.shipments])
+        return result[:-1]
+
+    def open_as_dialog(self):
+        if not self.pdf_scanned:
+            return self.popup("Todavía no se escaneó ningún PDF")
+        top = Toplevel()
+        my_label = Text(top)
+        my_label.insert(INSERT, self.shipments_as_text())
+        my_label.pack()
+        btn = Button(top, text="Copiar",
+                     command=lambda: self.copy_to_clipboard(
+                         self.shipments_as_text()))
+        btn.pack()
+
+    def copy_to_clipboard(self, txt):
+        self.clipboard_clear()
+        self.clipboard_append(txt)
+        # now it stays on the clipboard after the window is closed
+        self.update()
+        return
 
     def shipment_to_csv_string(self, shipment: Shipment) -> str:
         return \
