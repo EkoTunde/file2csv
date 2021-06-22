@@ -20,9 +20,16 @@ class Application(tk.Frame):
         self.pdf_scanned = False
 
     def create_converter(self):
+        """Creates an instance of converter class,
+        which will be used for converting PDF file onto
+        Shipment objects.
+        """
         self.converter = PDF2CSV()
 
     def create_widgets(self):
+        """Creates and grid/pack all tkinter widget
+        which will be rendered on screen.
+        """
 
         # Just a label
         self.entry_file_label = tk.Label(
@@ -177,11 +184,6 @@ class Application(tk.Frame):
             self.previewer_frame, text=">", width=3, command=self.next_item)
         self.next_btn.grid(row=11, column=2, sticky="e")
 
-        # Export to CSV
-        # self.export_btn = tk.Button(
-        #     self, text="Exportar a CSV", command=self.export_to_csv)
-        # self.export_btn.grid(row=3, column=0, columnspan=4, sticky="we")
-
         # Export frame
         self.export_frame = tk.LabelFrame(
             self, text="Exportación", pady=10, padx=10)
@@ -211,6 +213,8 @@ class Application(tk.Frame):
         return
 
     def select_file(self):
+        """Runs an Open File Dialog for PDF selecting
+        """
         try:
             downloads_path = str(Path.home() / "Downloads")
             self.filename = filedialog.askopenfilename(
@@ -226,6 +230,9 @@ class Application(tk.Frame):
             self.popup(e)
 
     def convert(self):
+        """Performs the conversion from PDF to a list of
+            objects representing the MercadoLibre's shipments.
+        """
         if len(self.entry_file.get()) > 0:
             self.shipments = []
             self.clear_entries()
@@ -244,20 +251,34 @@ class Application(tk.Frame):
             self.popup("Ningún archivo seleccionado para escanear.")
 
     def show_error(self):
+        """Displays an error message
+        """
         self.status_label.config(
             text='Error al obtener los datos', fg="#F00")
 
     def show_in_progress(self):
+        """Displays PDF convertion in progress
+        """
         self.status_label.config(text='Procesando...', fg="#000")
 
     def show_in_hold(self):
+        """Displays PDF convertions is awaiting for user to
+            run it.
+        """
         self.status_label.config(text='En espera', fg="#000")
 
     def show_success(self):
+        """Displays PDF has been successfully converted.
+        """
         t = f'Éxito! {len(self.shipments)} envíos encontrados!'
         self.status_label.config(text=t, fg="#008000")
 
     def next_item(self):
+        """Updates selected item index from shipents's list.
+
+        Returns:
+            A popup error if pdf hasn't been converted yet
+        """
         if not self.pdf_scanned:
             return self.popup("Todavía no se escaneó ningún PDF")
         if self.selected_index == self.max:
@@ -265,8 +286,14 @@ class Application(tk.Frame):
         else:
             self.selected_index += 1
         self.publish_item()
+        return
 
     def prev_item(self):
+        """Updates selected item index from shipment's list.
+
+        Returns:
+            A popup error if pdf hasn't been converted yet
+        """
         if not self.pdf_scanned:
             return self.popup("Todavía no se escaneó ningún PDF")
         if self.selected_index == 0:
@@ -276,6 +303,8 @@ class Application(tk.Frame):
         self.publish_item()
 
     def publish_item(self):
+        """Displays the shipment at the selected index from shipment's list.
+        """
         self.shipment_no.config(text=f'Envío N.° {self.selected_index+1}')
         self.clear_entries()
         self.cliente_entry.insert(
@@ -301,10 +330,18 @@ class Application(tk.Frame):
         return
 
     def clear_entries(self):
+        """Clears all Entry Widgets which indicate shipment's info.
+        """
         for entry in self.get_entries():
             entry.delete(0, 'end')
 
     def save_item(self):
+        """Saves the currently displayed shipment item info.
+
+        Returns:
+            A popup error if pdf hasn't been converted yet or a
+            popup error displaying the exception.
+        """
         if not self.pdf_scanned:
             return self.popup("Todavía no se escaneó ningún PDF")
         try:
@@ -333,18 +370,30 @@ class Application(tk.Frame):
             self.popup(e)
 
     def popup(self, message):
+        """Displays error popup with the message provided
+            parsed to string.
+
+        Args:
+            message (Any)
+        """
         error_title = "Ha ocurrido un error"
         error_message = "Error: " + str(message)
         messagebox.showerror(error_title, error_message)
         return
 
-    def export_to_csv(self):
-        return self.export('csv')
-
-    def export_to_txt(self):
-        return self.export('txt')
-
     def export(self, extension: str):
+        """Performs the export to a file in the provided extension with shipments
+            formatted in CSV-style.
+            Asks for filename and path to save to.
+
+        Args:
+            extension (str): file extension (csv, txt).
+
+        Returns:
+            A popup error if pdf hasn't been converted yet, or a
+            popup error displaying the exception, or nothing
+            if there wasn't any filepath to save to.
+        """
         if not self.pdf_scanned:
             return self.popup("Todavía no se escaneó ningún PDF")
         try:
@@ -370,11 +419,23 @@ class Application(tk.Frame):
             self.popup(e)
 
     def shipments_as_text(self):
+        """Returns a joined string of all shipments previously parsed
+        to CSV-style str.
+
+        Returns:
+            [type]: [description]
+        """
         result = "".join([self.shipment_to_csv_string(shipment)
                           for shipment in self.shipments])
         return result[:-1]
 
     def open_as_dialog(self):
+        """Displays all shipments parsed to full str in CSV-style
+        in a new tkinter window.
+
+        Returns:
+            A popup error if pdf hasn't been converted yet
+        """
         if not self.pdf_scanned:
             return self.popup("Todavía no se escaneó ningún PDF")
         top = Toplevel()
@@ -386,7 +447,13 @@ class Application(tk.Frame):
                          self.shipments_as_text()))
         btn.pack()
 
-    def copy_to_clipboard(self, txt):
+    def copy_to_clipboard(self, txt: str):
+        """Copies to clipboard displayed shipments parsed to full str
+        in CSV-style displayed in new tkinter window.
+
+        Args:
+            txt (Str): Text to copy.
+        """
         self.clipboard_clear()
         self.clipboard_append(txt)
         # now it stays on the clipboard after the window is closed
@@ -394,6 +461,14 @@ class Application(tk.Frame):
         return
 
     def shipment_to_csv_string(self, shipment: Shipment) -> str:
+        """Parses a shipment to a full str in CSV-style.
+
+        Args:
+            shipment (Shipment): to be parsed.
+
+        Returns:
+            str: shipment in CSV-style.
+        """
         return \
             str(shipment.client_name).replace(", ", "") + "," + \
             str(shipment.client_id).replace(", ", "") + "," + \
@@ -407,7 +482,12 @@ class Application(tk.Frame):
             str(shipment.destinatario).replace(", ", "") + \
             "\n"
 
-    def explore(self, path):
+    def explore(self, path: str):
+        """Opens File Explorer at provided path.
+
+        Args:
+            path (str): to open File Explorer to.
+        """
         # explorer would choke on forward slashes
         path = os.path.normpath(path)
         if os.path.isdir(path):
@@ -417,6 +497,12 @@ class Application(tk.Frame):
                 [self.FILEBROWSER_PATH, '/select,', os.path.normpath(path)])
 
     def get_entries(self):
+        """Returns list containg all entry widgets
+        which display a shipment fields.
+
+        Returns:
+            list: of entry widgets.
+        """
         return [
             self.cliente_entry,
             self.id_cliente_entry,
