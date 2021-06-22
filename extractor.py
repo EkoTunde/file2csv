@@ -91,7 +91,6 @@ class PDF2CSV(object):
 
     def parse_package(self, input: str):
         lines = input.split("\n")
-        # shipment = {}
         shipment = Shipment()
         if lines[0] == "":
             return None
@@ -99,53 +98,29 @@ class PDF2CSV(object):
             if "CP" in line:
                 shipment.codigo_postal = self.parse_without(
                     line, "CP: ", as_int=True)
-                # shipment['codigo_postal'] = self.parse_without(
-                #     line, "CP: ", as_int=True)
                 break
         if lines[0].isnumeric():    # Cuando el pedido es solo un producto
             shipment.quantity = int(lines[0])
-            # shipment['quantity'] = int(lines[0])
             shipment.id_venta = self.parse_without(
                 lines[3], "Venta: ", as_int=True)
-            # shipment['id_venta'] = self.parse_without(
-            #     lines[3], "Venta: ", as_int=True)
             shipment.id_envio = self.parse_without(
                 lines[4], "Tracking: ", as_int=True)
-            # shipment['id_envio'] = self.parse_without(
-            #     lines[4], "Tracking: ", as_int=True)
             shipment.ciudad = lines[5]
-            # shipment['ciudad'] = lines[5]
             shipment.barrio = lines[6]
-            # shipment['barrio'] = lines[6]
             shipment.direccion = self.parse_without(lines[8], "Direccion: ")
-            # shipment['direccion'] = self.parse_without(
-            #   lines[8], "Direccion: ")
             shipment.destinatario = self.parse_without(
                 lines[7], "Destinatario: ")
-            # shipment['destinatario'] = self.parse_without(
-            #     lines[7], "Destinatario: ")
         else:
             shipment.quantity = int(lines[2])
-            # shipment['quantity'] = int(lines[2])
             shipment.id_venta = self.parse_without(
                 lines[0], "Venta: ", as_int=True)
-            # shipment['id_venta'] = self.parse_without(
-            #     lines[0], "Venta: ", as_int=True)
             shipment.id_envio = self.parse_without(
                 lines[1], "Tracking: ", as_int=True)
-            # shipment['id_envio'] = self.parse_without(
-            #     lines[1], "Tracking: ", as_int=True)
             shipment.ciudad = lines[4]
-            # shipment['ciudad'] = lines[4]
             shipment.barrio = lines[5]
-            # shipment['barrio'] = lines[5]
             shipment.direccion = self.parse_without(lines[7], "Direccion: ")
-            # shipment['direccion'] = self.parse_without(
-            #   lines[7], "Direccion: ")
             shipment.destinatario = self.parse_without(
                 lines[6], "Destinatario: ")
-            # shipment['destinatario'] = self.parse_without(
-            #     lines[6], "Destinatario: ")
         return shipment
 
     def shipment_dict(self) -> dict:
