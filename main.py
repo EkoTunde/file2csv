@@ -4,7 +4,7 @@ from shipment import Shipment
 import subprocess
 import tkinter as tk
 from tkinter import Button, Toplevel, filedialog, messagebox, Text, INSERT
-from extractor import PDF2CSV
+from extractor import MercadoLibreTicketExtractor
 
 
 class Application(tk.Frame):
@@ -24,7 +24,7 @@ class Application(tk.Frame):
         which will be used for converting PDF file onto
         Shipment objects.
         """
-        self.converter = PDF2CSV()
+        self.converter = MercadoLibreTicketExtractor()
 
     def create_widgets(self):
         """Creates and grid/pack all tkinter widget
@@ -58,9 +58,15 @@ class Application(tk.Frame):
         self.status_label = tk.Label(self.frame, text=explanation)
         self.status_label.pack()
 
-        # Scann for data button
+        # Scann for MercadoLibre data button
         self.entry_file_button = tk.Button(
-            self.frame, text="Escanear", height=1, padx=10,
+            self.frame, text="Escanear ML", height=1, padx=10,
+            command=self.convert)
+        self.entry_file_button.pack()
+
+        # Scann for TiendaNube data button
+        self.entry_file_button = tk.Button(
+            self.frame, text="Escanear TiendaNube", height=1, padx=10,
             command=self.convert)
         self.entry_file_button.pack()
 
@@ -232,6 +238,27 @@ class Application(tk.Frame):
     def convert(self):
         """Performs the conversion from PDF to a list of
             objects representing the MercadoLibre's shipments.
+        """
+        if len(self.entry_file.get()) > 0:
+            self.shipments = []
+            self.clear_entries()
+            try:
+                self.show_in_progress()
+                self.shipments = self.converter.convert(self.entry_file.get())
+                self.max = len(self.shipments)-1
+                self.publish_item()
+                self.show_success()
+                self.pdf_scanned = True
+            except Exception as e:
+                self.pdf_scanned = False
+                self.show_error()
+                self.popup(e)
+        else:
+            self.popup("Ningún archivo seleccionado para escanear.")
+
+    def convert_tienda_nube(self):
+        """Performs the conversion from PDF to a list of
+            objects representing the TiendaNube's shipments.
         """
         if len(self.entry_file.get()) > 0:
             self.shipments = []
