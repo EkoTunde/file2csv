@@ -4,7 +4,7 @@ from shipment import Shipment
 import subprocess
 import tkinter as tk
 from tkinter import Button, Toplevel, filedialog, messagebox, Text, INSERT
-from extractor import MercadoLibreTicketExtractor
+from extractor import MLExtractor, TNExtractor
 
 
 class Application(tk.Frame):
@@ -16,7 +16,8 @@ class Application(tk.Frame):
         self.pack(padx=10, pady=10)
         self.selected_index = 0
         self.create_widgets()
-        self.create_converter()
+        self.mercado_libre_converter = MLExtractor()
+        self.tienda_nube_converter = TNExtractor()
         self.pdf_scanned = False
 
     def create_converter(self):
@@ -24,7 +25,8 @@ class Application(tk.Frame):
         which will be used for converting PDF file onto
         Shipment objects.
         """
-        self.converter = MercadoLibreTicketExtractor()
+        self.mercado_libre_converter = MLExtractor()
+        self.tienda_nube_converter = TNExtractor()
 
     def create_widgets(self):
         """Creates and grid/pack all tkinter widget
@@ -67,7 +69,7 @@ class Application(tk.Frame):
         # Scann for TiendaNube data button
         self.entry_file_button = tk.Button(
             self.frame, text="Escanear TiendaNube", height=1, padx=10,
-            command=self.convert)
+            command=self.convert_tienda_nube)
         self.entry_file_button.pack()
 
         # Scanning status label
@@ -195,6 +197,12 @@ class Application(tk.Frame):
             self, text="Exportación", pady=10, padx=10)
         self.export_frame.grid(row=3, column=0, columnspan=4, sticky="we")
 
+        # Copy to clipboard
+        self.copy_button = tk.Button(
+            self.export_frame, text="Copiar", padx=15,
+            command=lambda: self.copy_to_clipboard(self.shipments_as_text()))
+        self.copy_button.pack(side=tk.LEFT)
+
         # Export to CSV
         explanation = "Exportar a CSV"
         self.export_csv = tk.Button(
@@ -244,7 +252,8 @@ class Application(tk.Frame):
             self.clear_entries()
             try:
                 self.show_in_progress()
-                self.shipments = self.converter.convert(self.entry_file.get())
+                self.shipments = self.mercado_libre_converter.convert(
+                    self.entry_file.get())
                 self.max = len(self.shipments)-1
                 self.publish_item()
                 self.show_success()
@@ -265,7 +274,8 @@ class Application(tk.Frame):
             self.clear_entries()
             try:
                 self.show_in_progress()
-                self.shipments = self.converter.convert(self.entry_file.get())
+                self.shipments = self.tienda_nube_converter.convert(
+                    self.entry_file.get())
                 self.max = len(self.shipments)-1
                 self.publish_item()
                 self.show_success()
