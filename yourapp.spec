@@ -4,10 +4,10 @@
 block_cipher = None
 
 
-a = Analysis(['main.py'],
+a = Analysis(['yourapp.py'],
              pathex=['C:\\projects\\python_projects\\pdf2csv'],
              binaries=[],
-             datas=[('pdf2csv.ico', '.')],
+             datas=[],
              hiddenimports=['fitz'],
              hookspath=[],
              runtime_hooks=[],
@@ -24,12 +24,11 @@ exe = EXE(pyz,
           a.zipfiles,
           a.datas,
           [],
-          name='pdf2csv',
+          name='yourapp',
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,
           upx=True,
           upx_exclude=[],
           runtime_tmpdir=None,
-          console=False,
-          icon='C:\\projects\\python_projects\\pdf2csv\\pdf2csv.ico')
+          console=False , icon='pdf2csv.ico')

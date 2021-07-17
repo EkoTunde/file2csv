@@ -11,3 +11,4 @@ main.spec
 *.exe
 *.zip
 /viejo
+/dist/prueba_tienda_mia.txt

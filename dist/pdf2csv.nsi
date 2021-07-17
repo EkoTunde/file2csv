@@ -2,7 +2,7 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "PDF2CSV"
-!define PRODUCT_VERSION "1.0.1"
+!define PRODUCT_VERSION "1.1.2"
 !define PRODUCT_PUBLISHER "EkoSoftware"
 !define PRODUCT_WEB_SITE "https://github.com/EkoTunde"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\pdf2csv.exe"
@@ -19,6 +19,8 @@
 
 ; Welcome page
 !insertmacro MUI_PAGE_WELCOME
+; Directory page
+!insertmacro MUI_PAGE_DIRECTORY
 ; Instfiles page
 !insertmacro MUI_PAGE_INSTFILES
 ; Finish page
@@ -43,17 +45,18 @@ ShowUnInstDetails show
 Section "Principal" SEC01
   SetOutPath "$INSTDIR"
   SetOverwrite ifnewer
-  File "pdf2csv.ico"
   File "pdf2csv.exe"
   CreateDirectory "$SMPROGRAMS\PDF2CSV"
   CreateShortCut "$SMPROGRAMS\PDF2CSV\PDF2CSV.lnk" "$INSTDIR\pdf2csv.exe"
   CreateShortCut "$DESKTOP\PDF2CSV.lnk" "$INSTDIR\pdf2csv.exe"
+  File "pdf2csv.ico"
   SetOutPath "$INSTDIR\img"
   File "img\pdf2csv.gif"
 SectionEnd
 
 Section -AdditionalIcons
   SetOutPath $INSTDIR
+  WriteIniStr "$INSTDIR\${PRODUCT_NAME}.url" "InternetShortcut" "URL" "${PRODUCT_WEB_SITE}"
   CreateShortCut "$SMPROGRAMS\PDF2CSV\Uninstall.lnk" "$INSTDIR\uninst.exe"
 SectionEnd
 
@@ -80,12 +83,14 @@ Function un.onInit
 FunctionEnd
 
 Section Uninstall
+  Delete "$INSTDIR\${PRODUCT_NAME}.url"
   Delete "$INSTDIR\uninst.exe"
   Delete "$INSTDIR\img\pdf2csv.gif"
-  Delete "$INSTDIR\pdf2csv.exe"
   Delete "$INSTDIR\pdf2csv.ico"
+  Delete "$INSTDIR\pdf2csv.exe"
 
   Delete "$SMPROGRAMS\PDF2CSV\Uninstall.lnk"
+  Delete "$SMPROGRAMS\PDF2CSV\Website.lnk"
   Delete "$DESKTOP\PDF2CSV.lnk"
   Delete "$SMPROGRAMS\PDF2CSV\PDF2CSV.lnk"
 

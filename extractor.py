@@ -3,13 +3,12 @@ from shipment import Shipment
 from dataclasses import asdict
 
 
-class MLExtractor(object):
-
-    SEPARATOR = "~"*6
-    text = ""
+class Extractor(object):
 
     def __init__(self, filepath=None):
         self.pdf = filepath
+        self.SEPARATOR = "~"*6
+        self.text = ""
 
     def convert(self, pdf=None) -> list:
         """Initializes convertion of pdf to dict called 'shipments'
@@ -26,6 +25,38 @@ class MLExtractor(object):
         self.shipments = self.get_shipments(text)
         return self.shipments
 
+    def parse_clients(self, extra_info):
+        clients = []
+        if extra_info:
+            for line in extra_info.split("\n"):
+                if "#" in line:
+                    parts = line.split(" #")
+                    clients.append({
+                        'client_name': parts[0],
+                        'client_id': parts[1],
+                    })
+            return clients
+        return None
+
+    def create_csv(self, pathtosave: str):
+        with open(pathtosave, "w") as csv:
+            titles = "quantity, id_venta, id_envio, ciudad, barrio, " + \
+                "direccion, codigo_postal, destinatario," + \
+                " client_name, client_id\n"
+            csv.write(titles)
+            for shipment in self.shipments:
+                result = ""
+                for key, value in asdict(shipment).items():
+                    result += str(value).replace(",", "") + ","
+                result = result[:-2] + "\n"
+                csv.write(result)
+
+
+class MLExtractor(Extractor):
+
+    def __init__(self, filepath=None):
+        super().__init__(filepath)
+
     def get_text(self):
         """Opens the PDF file and extracts it as a single str.
 
@@ -40,8 +71,6 @@ class MLExtractor(object):
                 # Keeps track of shipments
                 # Which are max 3 per page
                 counter = 0
-
-                # print(extract)
 
                 # This page contains the final list
                 if "Despacha" in extract:
@@ -60,7 +89,6 @@ class MLExtractor(object):
                             counter += 1
 
                         text += '\n'
-        # print(text)
         return text
 
     def is_clean_line(self, line):
@@ -78,9 +106,6 @@ class MLExtractor(object):
             if temp == 1:
                 temp = 0
             q = len(parts)
-            # print('part 0 =>' + parts[0]) if q > 1 else None
-            # print('part 1 =>' + parts[1]) if q > 2 else None
-            # print('part 2 =>' + parts[2]) if q > 3 else None
             if q != 1:
                 ship_1 = self.parse_package(parts[0]) if q > 1 else None
                 ship_2 = self.parse_package(parts[1]) if q > 2 else None
@@ -95,7 +120,6 @@ class MLExtractor(object):
         return shipments
 
     def parse_package(self, input: str):
-        print(input)
         lines = input.split("\n")
         shipment = Shipment()
         if lines[0] == "":
@@ -135,57 +159,11 @@ class MLExtractor(object):
             cleaned = int(cleaned.replace(" ", ""))
         return cleaned
 
-    def parse_clients(self, extra_info):
-        clients = []
-        if extra_info:
-            for line in extra_info.split("\n"):
-                if "#" in line:
-                    parts = line.split(" #")
-                    clients.append({
-                        'client_name': parts[0],
-                        'client_id': parts[1],
-                    })
-            return clients
-        return None
 
-    def create_csv(self, pathtosave: str):
-        with open(pathtosave, "w") as csv:
-            titles = "quantity, id_venta, id_envio, ciudad, barrio, " + \
-                "direccion, codigo_postal, destinatario," + \
-                " client_name, client_id\n"
-            csv.write(titles)
-            for shipment in self.shipments:
-                result = ""
-                for key, value in asdict(shipment).items():
-                    result += str(value).replace(",", "") + ","
-                result = result[:-2] + "\n"
-                csv.write(result)
-
-
-class TNExtractor(object):
-
-    SEPARATOR = "~"*6
-    text = ""
+class TNExtractor(Extractor):
 
     def __init__(self, filepath=None):
-        self.pdf = filepath
-
-    def convert(self, pdf=None) -> list:
-        """Initializes convertion of pdf to dict called 'shipments'
-
-        Args:
-            pdf (str, optional): PDF file name. Defaults to None.
-
-        Returns:
-            list: containing 'shipments' dicts
-        """
-        if pdf:
-            self.pdf = pdf
-        self.text = self.get_text()
-        with open('prueba_tienda_mia.txt', 'a') as doc:
-            doc.write(self.text)
-        self.shipments = self.get_shipments(self.text)
-        return self.shipments
+        super().__init__(filepath)
 
     def get_text(self):
         """Opens the PDF file and extracts it as a single str.
@@ -212,20 +190,6 @@ class TNExtractor(object):
                 for i in range(q):
                     shipment = self.parse_package(parts[i])
                     shipments.append(shipment)
-                # ship_1 = self.parse_package(parts[0]) if q > 1 else None
-                # ship_2 = self.parse_package(parts[1]) if q > 2 else None
-                # ship_3 = self.parse_package(parts[2]) if q > 3 else None
-                # ship_4 = self.parse_package(parts[3]) if q > 4 else None
-                # extra_info = parts[-1]
-                # clients = self.parse_clients(extra_info)
-                # for i, ship in enumerate([ship_1, ship_2, ship_3, ship_4]):
-                #     if ship:
-                #         ship.client_name = clients[i]['client_name']
-                #         ship.client_id = clients[i]['client_id']
-                # shipments.append(ship_1)
-                # shipments.append(ship_2)
-                # shipments.append(ship_3)
-                # shipments.append(ship_4)
         return shipments
 
     def parse_package(self, input: str):
@@ -254,29 +218,3 @@ class TNExtractor(object):
         if as_int:
             cleaned = int(cleaned.replace(" ", ""))
         return cleaned
-
-    def parse_clients(self, extra_info):
-        clients = []
-        if extra_info:
-            for line in extra_info.split("\n"):
-                if "#" in line:
-                    parts = line.split(" #")
-                    clients.append({
-                        'client_name': parts[0],
-                        'client_id': parts[1],
-                    })
-            return clients
-        return None
-
-    def create_csv(self, pathtosave: str):
-        with open(pathtosave, "w") as csv:
-            titles = "quantity, id_venta, id_envio, ciudad, barrio, " + \
-                "direccion, codigo_postal, destinatario," + \
-                " client_name, client_id\n"
-            csv.write(titles)
-            for shipment in self.shipments:
-                result = ""
-                for key, value in asdict(shipment).items():
-                    result += str(value).replace(",", "") + ","
-                result = result[:-2] + "\n"
-                csv.write(result)
