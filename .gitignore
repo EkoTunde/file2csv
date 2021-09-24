@@ -1,4 +1,5 @@
 /venv
+/env
 /.vscode
 /.pytest_cache
 /__pycache__
@@ -12,3 +13,4 @@ main.spec
 *.zip
 /viejo
 /dist/prueba_tienda_mia.txt
+~$example.xlsx

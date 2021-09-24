@@ -412,6 +412,7 @@ class Extractor(object):
 
 import re
 import openpyxl
+from shipment import Shipment2
 
 wb = openpyxl.load_workbook("example.xlsx")
 
@@ -435,16 +436,16 @@ for name in wb.get_sheet_names():
 
 # def get_col_order(first_row_values):
 
-    default_order = {
+    columns_order = {
         'TRACKING ID MERCADO LIBRE': 0,
         'DOMICILIO': 1,
         'ENTRECALLES': 2,
-        'CODIGO POSTAL': 3,
+        'CODIGO POSTAL': 3, 
         'LOCALIDAD': 4,
         'PARTIDO': 5,
         'DESTINATARIO': 6,
         'DNI DESTINATARIO': 7,
-        'TELEFONO DESTINATARIO': 8,
+        'TELEFONO DESTINATARIO': 8, 
         'DETALLE DEL ENVIO': 9,
     }
 
@@ -453,10 +454,39 @@ for name in wb.get_sheet_names():
     for i, value in enumerate(first_row_values):
         print(i+1, value)
         col = i + 1
-        default_order[value] = col
-        print(default_order[value])
+        columns_order[value] = col
+        print(columns_order[value])
 
-    print(default_order)
+    print(columns_order)
+
+    shipments = []
+    for row_i in range(min_row, max_row):
+        shipment = Shipment2()
+        
+        if sheet.cell(row_i, columns_order['TRACKING ID MERCADO LIBRE']).value:
+            shipment.tracking_id = sheet.cell(row_i, columns_order['TRACKING ID MERCADO LIBRE']).value
+        if sheet.cell(row_i, columns_order['DOMICILIO']).value:
+            shipment.domicilio = sheet.cell(row_i, columns_order['DOMICILIO']).value
+        if sheet.cell(row_i, columns_order['ENTRECALLES']).value:
+            shipment.entrecalles = sheet.cell(row_i, columns_order['ENTRECALLES']).value
+        if sheet.cell(row_i, columns_order['CODIGO POSTAL']).value:
+            shipment.codigo_postal = sheet.cell(row_i, columns_order['CODIGO POSTAL']).value
+        if sheet.cell(row_i, columns_order['LOCALIDAD']).value:
+            shipment.localidad = sheet.cell(row_i, columns_order['LOCALIDAD']).value
+        if sheet.cell(row_i, columns_order['PARTIDO']).value:
+            shipment.partido = sheet.cell(row_i, columns_order['PARTIDO']).value
+        if sheet.cell(row_i, columns_order['DESTINATARIO']).value:
+            shipment.destinatario = sheet.cell(row_i, columns_order['DESTINATARIO']).value
+        if sheet.cell(row_i, columns_order['DNI DESTINATARIO']).value:
+            shipment.dni_destinatario = sheet.cell(row_i, columns_order['DNI DESTINATARIO']).value
+        if sheet.cell(row_i,columns_order['TELEFONO DESTINATARIO']).value:
+            shipment.phone = sheet.cell(row_i,columns_order['TELEFONO DESTINATARIO']).value
+        if sheet.cell(row_i, columns_order['DETALLE DEL ENVIO']).value:
+            shipment.detalle_del_envio = sheet.cell(row_i, columns_order['DETALLE DEL ENVIO']).value
+        shipments.append(shipment)
+    
+    for shipment in shipments:
+        print(shipment)
         
 
     # default_order_old = {
