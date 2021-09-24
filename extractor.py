@@ -1,14 +1,16 @@
 import fitz  # this is pymupdf
+import openpyxl
 from shipment import Shipment
 from dataclasses import asdict
 
 
-class Extractor(object):
+class PDFExtractor(object):
 
-    def __init__(self, filepath=None):
+    def __init__(self, filepath=None, **kwargs):
         self.pdf = filepath
         self.SEPARATOR = "~"*6
         self.text = ""
+        super().__init__(**kwargs)
 
     def convert(self, pdf=None) -> list:
         """Initializes convertion of pdf to dict called 'shipments'
@@ -52,10 +54,10 @@ class Extractor(object):
                 csv.write(result)
 
 
-class MLExtractor(Extractor):
+class MLExtractor(PDFExtractor):
 
-    def __init__(self, filepath=None):
-        super().__init__(filepath)
+    def __init__(self, filepath=None, **kwargs):
+        super().__init__(filepath, **kwargs)
 
     def get_text(self):
         """Opens the PDF file and extracts it as a single str.
@@ -67,6 +69,7 @@ class MLExtractor(Extractor):
         with fitz.open(self.pdf) as doc:
             for page in doc:
                 extract = page.getText()
+                print(extract)
 
                 # Keeps track of shipments
                 # Which are max 3 per page
@@ -160,7 +163,7 @@ class MLExtractor(Extractor):
         return cleaned
 
 
-class TNExtractor(Extractor):
+class TNExtractor(PDFExtractor):
 
     def __init__(self, filepath=None):
         super().__init__(filepath)
@@ -218,3 +221,146 @@ class TNExtractor(Extractor):
         if as_int:
             cleaned = int(cleaned.replace(" ", ""))
         return cleaned
+
+
+class ExcelExtractor(object):
+
+    def convert(self, excel=None) -> list:
+        """Initializes convertion of excel to dict called 'shipments'
+
+        Args:
+            excel (str, optional): Excel file name. Defaults to None.
+
+        Returns:
+            list: containing 'shipments' dicts
+        """
+        if excel:
+            self.excel = excel
+        text = self.get_text()
+        self.shipments = self.get_shipments(text)
+        return self.shipments
+
+    # def get_text(self):
+    #     wb = openpyxl.load_workbook('example.xlsx')
+    #     pass
+
+    # def __init__(self, filepath=None):
+    #     super().__init__(filepath)
+
+    # def get_text(self):
+    #     """Opens the PDF file and extracts it as a single str.
+
+    #     Returns:
+    #         str: containing the whole pdf file as text.
+    #     """
+    #     text = ""
+    #     with fitz.open(self.pdf) as doc:
+    #         for page in doc:
+    #             extract = page.getText()
+    #             text += str(extract).replace('\nOrden: #',
+    #                                          f'\n{self.SEPARATOR}\nOrden: #')
+    #             text += "\n\n"
+    #     return text
+
+
+algo = """TRACKING ID MERCADO LIBRE	DOMICILIO	ENTRECALLES	CODIGO POSTAL	LOCALIDAD	PARTIDO	DNI_DESTINATARIO	DESTINATARIO	DETALLE DEL ENVIO"""
+
+
+# 1) Ver qué formato es el archivo
+# 2) Si es formato excel: convertir a csv
+# 3) Si es formato csv: devolver csv
+# 2) Si es pdf: verificar si es Meli o TiendaNube
+
+
+class CantConvertNothing(Exception):
+    pass
+
+
+class FileWithNoExtension(Exception):
+    pass
+
+
+class InvalidExtension(Exception):
+    pass
+
+
+class ShipmentExtractor(object):
+
+    def __init__(self, filepath: str = None):
+        if filepath and type(filepath) != str:
+            raise TypeError("Filepath must be a str.")
+        self.file = filepath
+
+    def convert(self, filepath: str = None) -> str:
+        """Initializes convertion of file to csv
+
+        Args:
+            filepath (str, optional): file name. Defaults to None.
+
+        Returns:
+            csv: containing shipments's data
+        """
+
+        # If filepath was provided here, update self.file
+        if filepath:
+            # If filepath's not a str
+            if type(filepath) != str:
+                raise TypeError("Filepath must be a str.")
+            self.file = filepath
+
+        # If no filepath was provided
+        if not self.file:
+            raise CantConvertNothing("No filepath was provided.")
+
+        try:
+            # Find last '.' (stop)
+            last_stop = self.file.rindex(".")
+            # Get the extension
+            extension = self.file[last_stop+1:]
+        except ValueError:
+            raise FileWithNoExtension("File didn't contain an extension.")
+
+        if extension == 'pdf':
+            # Do pdf work
+            self.convert_pdf()
+            pass
+        elif extension == 'xlsx':
+            # Do xlsx work
+            print("do xlsx")
+            pass
+        elif extension == 'csv':
+            # Do csv work
+            print("do csv")
+            pass
+        else:
+            raise InvalidExtension("Unknown file extension.")
+
+        return 1
+
+    def convert_pdf(self):
+        with fitz.open(self.file) as pdf:
+            first_page = pdf[0]
+            if self.is_mercado_libre(first_page.getText()):
+                self.convert_mercado_libre(pdf)
+            else:
+                self.convert_tienda_nube(pdf)
+        return ""
+
+    def is_mercado_libre(self, text):
+        return 'Mercado Envíos' in text \
+            or 'Flex' in text or 'Recorta' in text
+
+    def convert_mercado_libre(self, pdf):
+        extractor = MLExtractor(pdf)
+        shipments = extractor.convert()
+        print(shipments)
+        return
+
+    def convert_tienda_nube(self, pdf):
+        pass
+
+    def convert_xlsx(self):
+        return ""
+
+    def convert_csv(self):
+        return ""

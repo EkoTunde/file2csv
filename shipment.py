@@ -13,3 +13,17 @@ class Shipment:
     destinatario: str = None
     client_name: str = None
     client_id: int = None
+
+
+@dataclass
+class Shipment2:
+    traking_id: str = ""
+    domicilio: str = ""
+    entrecalles: str = ""
+    codigo_postal: str = ""
+    localidad: str = ""
+    partido: str = ""
+    destinatario: str = ""
+    dni_destinatario: str = ""
+    detalle_envio: str = ""
+    phone: str = ""

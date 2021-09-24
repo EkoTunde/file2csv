@@ -554,13 +554,18 @@ class Application(tk.Frame):
         ]
 
 
-root = tk.Tk()
-root.geometry("650x535")
-root.title("PDF2CSV")
-root.resizable(False, False)
-path = os.path.abspath(os.getcwd())
-icon = path + "\\img\\pdf2csv.gif"
-img = tk.PhotoImage(file=icon)
-root.tk.call('wm', 'iconphoto', root._w, img)
-app = Application(root)
-app.mainloop()
+def main():
+    root = tk.Tk()
+    root.geometry("650x535")
+    root.title("PDF2CSV")
+    root.resizable(False, False)
+    path = os.path.abspath(os.getcwd())
+    icon = path + "\\img\\pdf2csv.gif"
+    img = tk.PhotoImage(file=icon)
+    root.tk.call('wm', 'iconphoto', root._w, img)
+    app = Application(root)
+    app.mainloop()
+
+
+if __name__ == "__main__":
+    main()
