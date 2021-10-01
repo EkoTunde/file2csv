@@ -1,9 +1,14 @@
 import os
+import webbrowser
 from pathlib import Path
 import subprocess
 import tkinter as tk
 from tkinter import Button, Toplevel, filedialog, messagebox, Text, INSERT
 from extractor.extractor import Extractor
+
+EXCEL_INSTRUCTIONS = """
+
+"""
 
 
 class Application(tk.Frame):
@@ -24,10 +29,29 @@ class Application(tk.Frame):
         """Creates and grid/pack all tkinter widget
         which will be rendered on screen.
         """
+        # Scanning frame
+        self.frame_presentation = tk.Frame(self, pady=5)
+        self.frame_presentation.grid(
+            row=0, column=0, columnspan=3, sticky="we")
+
+        # Presentation label, explaining program
+        presentation_label_txt = "Escáner de archivos PDF " + \
+            "de MercadoLibre o TiendaNube, o XLSX (Excel) " + \
+            "con formato específico."
+        self.presentation_label = tk.Label(
+            self.frame_presentation,
+            text=presentation_label_txt, padx=5, pady=10)
+        self.presentation_label.pack()
+
+        # Open Excel instructions.
+        self.excel_instructions = tk.Button(
+            self.frame_presentation, text='Ayuda sobre Excel', padx=15,
+            command=self.__open_excel_instructions)
+        self.excel_instructions.pack(side=tk.LEFT)
 
         # Scanning frame
         self.frame_0 = tk.Frame(self, pady=5)
-        self.frame_0.grid(row=0, column=0, columnspan=3, sticky="we")
+        self.frame_0.grid(row=1, column=0, columnspan=3, sticky="we")
 
         # Just a label
         self.entry_file_label = tk.Label(
@@ -50,7 +74,7 @@ class Application(tk.Frame):
 
         # Scanning frame
         self.frame = tk.Frame(self, pady=5)
-        self.frame.grid(row=1, column=0, columnspan=4, sticky="we")
+        self.frame.grid(row=2, column=0, columnspan=4, sticky="we")
 
         # Scan explanation label
         explanation = "Presioná \"Escanear\" para buscar los" + \
@@ -71,7 +95,7 @@ class Application(tk.Frame):
         # Export frame
         self.export_frame = tk.LabelFrame(
             self, text="Exportación", pady=10, padx=10)
-        self.export_frame.grid(row=2, column=0, columnspan=3)
+        self.export_frame.grid(row=3, column=0, columnspan=3)
 
         # Copy to clipboard
         self.copy_button = tk.Button(
@@ -86,10 +110,10 @@ class Application(tk.Frame):
         self.export_csv.pack(side=tk.LEFT)
 
         # # Export to TXT
-        # self.export_txt = tk.Button(
-        #     self.export_frame, text='Exportar a TXT', padx=15,
-        #     command=lambda: self.__export('txt'))
-        # self.export_txt.pack(side=tk.LEFT)
+        self.export_txt = tk.Button(
+            self.export_frame, text='Exportar a TXT', padx=15,
+            command=lambda: self.__export('txt'))
+        self.export_txt.pack(side=tk.LEFT)
 
         # Open export string as dialog
         self.export_dialog = tk.Button(
@@ -105,14 +129,18 @@ class Application(tk.Frame):
 
     def __disable_buttons(self):
         self.all_buttons = [self.copy_button,
-                            self.export_csv, self.export_dialog]
+                            self.export_csv,
+                            self.export_txt,
+                            self.export_dialog]
         for btn in self.all_buttons:
             btn['state'] = 'disabled'
         return
 
     def __enable_buttons(self):
         self.all_buttons = [self.copy_button,
-                            self.export_csv, self.export_dialog]
+                            self.export_csv,
+                            self.export_txt,
+                            self.export_dialog]
         for btn in self.all_buttons:
             btn['state'] = 'normal'
         return
@@ -125,8 +153,7 @@ class Application(tk.Frame):
             self.filename = filedialog.askopenfilename(
                 # initialdir="C:/", title="Seleccioná un archivo PDF",
                 initialdir=downloads_path, title="Seleccioná un archivo PDF",
-                filetypes=(("PDF", "*.pdf"), ("CSV", "*.csv"),
-                           ("Excel", "*.xlsx"), ("all", "*,*"))
+                filetypes=(("PDF, CSV, Excel", "*.*"),)
             )
             if self.filename:
                 self.entry_file.delete(0, 'end')
@@ -223,6 +250,22 @@ class Application(tk.Frame):
         except Exception as e:
             self.__popup(e)
 
+    def __open_excel_instructions(self):
+        path = os.path.abspath(os.getcwd())
+        filename = path + "\\excel_instructions.html"
+        return webbrowser.open('file://' + os.path.realpath(filename))
+
+    def __open_txt_as_dialog(self, txt, big=None):
+        """Displays text in a new tkinter window.
+        """
+        top = Toplevel()
+        my_label = Text(top)
+        my_label.insert(INSERT, txt)
+        my_label.pack()
+        if big:
+            top.resizable(False, False)
+        return top
+
     def __open_as_dialog(self):
         """Displays all shipments parsed to full str in CSV-style
         in a new tkinter window.
@@ -232,14 +275,12 @@ class Application(tk.Frame):
         """
         if not self.file_scanned:
             return self.__popup("Todavía no se escaneó ningún PDF")
-        top = Toplevel()
-        my_label = Text(top)
-        my_label.insert(INSERT, self.result)
-        my_label.pack()
+        top = self.__open_txt_as_dialog(self.result)
         btn = Button(top, text="Copiar",
                      command=lambda: self.__copy_to_clipboard(
                          self.result))
         btn.pack()
+        return
 
     def __copy_to_clipboard(self, txt: str):
         """Copies to clipboard displayed shipments parsed to full str
@@ -270,16 +311,22 @@ class Application(tk.Frame):
 
 
 def main():
-    root = tk.Tk()
-    root.geometry("550x230")
-    root.title("File2CSV")
-    root.resizable(False, False)
-    path = os.path.abspath(os.getcwd())
-    icon = path + "\\img\\pdf2csv.gif"
-    img = tk.PhotoImage(file=icon)
-    root.tk.call('wm', 'iconphoto', root._w, img)
-    app = Application(root)
-    app.mainloop()
+    try:
+        root = tk.Tk()
+        root.geometry("580x330")
+        root.title("File2CSV")
+        root.resizable(False, False)
+        path = os.path.abspath(os.getcwd())
+        icon = path + "\\file2csv.gif"
+        img = tk.PhotoImage(file=icon)
+        root.tk.call('wm', 'iconphoto', root._w, img)
+        app = Application(root)
+        app.mainloop()
+    except Exception as e:
+        logpath = os.path.abspath(os.getcwd()) + "\\log.txt"
+        with open(logpath, 'a') as txt:
+            txt.write(str(e) + "\n")
+    return
 
 
 if __name__ == "__main__":

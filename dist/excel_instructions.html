@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<style>
+    body {
+        max-width: 800px;
+    }
+    
+    li {
+        padding: 5px;
+    }
+    
+    th {
+        border: 2px solid;
+        text-align: center;
+        vertical-align: middle;
+    }
+    
+    td {
+        border: 1px solid;
+        text-align: center;
+        vertical-align: middle;
+    }
+    
+    .si-o-si {
+        background-color: green;
+        color: white;
+        border: 2px solid black;
+    }
+</style>
+
+<body>
+
+    <h1 style="color: red;">
+        ¡¡¡IMPORTANTE!!!
+    </h1>
+
+    <h4>
+        Leer atentamente estas instrucciones. Los archivos de Excel no pueden contener cualquier cosa dentro:
+    </h4>
+    <div style="color: green;">
+        <strong>***Opción recomendable***</strong>
+        <p>
+            Un excel con 1 sola hoja (no importa el nombre), con los siguientes títulos de columnas: "TRACKING ID MERCADO LIBRE", "DOMICILIO", "ENTRECALLES", "CODIGO POSTAL", "LOCALIDAD", "PARTIDO", "DESTINATARIO", "DNI DESTINATARIO", "TELEFONO DESTINATARIO", "DETALLE
+            DEL ENVIO". No es necesario que todas estas columnas estén llenas ni en este orden, sino que aparezcan los títulos. Las columnas que tienen que estar llenas sí o sí se mencionan en el punto 4. Abajo de todo, un ejemplo.
+        </p>
+    </div>
+
+    <br>
+
+    <div style="border: 1px solid black; padding: 10px;">
+        <strong>
+            A tener en cuenta:
+        </strong>
+        <ol>
+            <li>
+                Si el excel tiene muchas hojas, va a buscar los envíos en la hoja con más filas y columnas.
+            </li>
+            <li>
+                Si la hoja encontrada no tiene columnas con títulos, el programa va a asumir que tiene las columnas como la opción recomendable.
+            </li>
+            <li>
+                Si la hoja encontrada tiene títulos que no coinciden con los de la opción recomendable, esos títulos distintos harán que su columna se descarte y los envíos estarán incompletos.
+            </li>
+            <li>
+                Las columnas que TIENEN QUE ESTAR SÍ O SÍ para que el sistema lo reconozca se corresponden con los títulos de: "TRACKING ID MERCADO LIBRE", "DOMICILIO", "LOCALIDAD". Sin embargo, mientras más columnas se proporcionen, mayor garantía de que se calcule
+                el costo del envío correctamente una vez que se entregue.
+            </li>
+            <li>
+                La columna del "TRACKING ID MERCADO LIBRE" no necesariamente tiene que indicar el ID real; lo importante es que si el envío es de FLEX, haya al menos un dato en la columna para la fila del envío. Es decir, si el cliente no sabe el id de FLEX, que en la
+                columna ingrese la palabra flex al menos, para que el sistema pueda reconocerlo como tal.
+            </li>
+            <li>
+                La columna "DETALLE DEL ENVÍO" dejarla en blanco para los envíos que son un paquete de menos de 5 kg. Para envíos de más paquetes, es preferirle ingresarlos individualmente. Se ingresan en sistema y se borran del excel.
+            </li>
+        </ol>
+    </div>
+    <br><br><br>
+
+    <hr>
+    <div>
+        <p>
+            <strong>
+                Ejemplo visual:
+            </strong>
+            <p>En verde las que tienen quee estar si o si</p>
+        </p>
+        <table>
+            <tr>
+                <th class="si-o-si">TRACKING ID MERCADO LIBRE</th>
+                <th class="si-o-si">DOMICILIO</th>
+                <th>ENTRECALLES</th>
+                <th>CODIGO POSTAL</th>
+                <th class="si-o-si">LOCALIDAD</th>
+                <th>PARTIDO</th>
+                <th>DESTINATARIO</th>
+                <th>DNI DESTINATARIO</th>
+                <th>TELEFONO DESTINATARIO</th>
+                <th>DETALLE DEL ENVIO</th>
+            </tr>
+            <tr>
+                <td>flex</td>
+                <td>Calle 1 56</td>
+                <td></td>
+                <td>1661</td>
+                <td>San Bernardo</td>
+                <td>San Clemente</td>
+                <td>Carlos Pérez</td>
+                <td>12345678</td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>Quirno 1456</td>
+                <td>Portones negros</td>
+                <td>1661</td>
+                <td>Bella Vista</td>
+                <td>San Clemente</td>
+                <td></td>
+                <td>12345678</td>
+                <td>11 5978-4147</td>
+                <td>0-1</td>
+            </tr>
+        </table>
+
+    </div>
+
+</body>
+
+</html>

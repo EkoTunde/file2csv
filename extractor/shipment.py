@@ -45,3 +45,14 @@ class Shipment:
         self.phone = unidecode.unidecode(self.phone)
         self.detalle_envio = unidecode.unidecode(self.detalle_envio)
         return
+
+    def is_not_empty(self):
+        return len(self.traking_id) > 0 or len(self.domicilio) > 0 \
+            or len(self.referencia) > 0 \
+            or len(self.codigo_postal) > 0 \
+            or len(self.localidad) > 0 \
+            or len(self.partido) > 0 \
+            or len(self.destinatario) > 0 \
+            or len(self.dni_destinatario) > 0 \
+            or len(self.phone) > 0 \
+            or len(self.detalle_envio) > 0

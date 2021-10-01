@@ -101,12 +101,30 @@ class ExcelModule(ShipmentExractorModule):
     def __update_columns_order(self, first_row_values: list) -> dict:
         columns_order = self.__default_columns_order()
         # Iterate over the first row's values and ther indexes
+
+        # Default columns list
+        columns = ['TRACKING ID MERCADO LIBRE',
+                   'DOMICILIO',
+                   'ENTRECALLES',
+                   'CODIGO POSTAL',
+                   'LOCALIDAD',
+                   'PARTIDO',
+                   'DESTINATARIO',
+                   'DNI DESTINATARIO',
+                   'TELEFONO DESTINATARIO',
+                   'DETALLE DEL ENVIO']
         for i, value in enumerate(first_row_values):
             # Increase index by one to get real column,
             # cause openpyxl index starts from 1
             col = i + 1
             # Update column header real index
             columns_order[value] = col
+            # Removes item from defaults columns list
+            columns.remove(value)
+
+        # If any default column remains, give then -1 order in dict
+        for column in columns:
+            columns_order[column] = -1
         return columns_order
 
     def __iter_and_get_shipments(self) -> list:
@@ -130,41 +148,66 @@ class ExcelModule(ShipmentExractorModule):
         columns_order = self.columns_order
 
         shipments = []
-        print("Se value desde", self.min_row, "hasta", self.max_row)
         for row_i in range(self.min_row, self.max_row+1):
             shipment = Shipment()
-            tracking = self.sheet.cell(row_i, columns_order[TRACKING]).value
-            shipment.tracking_id = tracking if tracking else ""
 
-            domicilio = self.sheet.cell(row_i, columns_order[DOMICILIO]).value
-            shipment.domicilio = domicilio if domicilio else ""
+            tracking = ""
+            if columns_order[TRACKING] != -1:
+                tracking = self.sheet.cell(
+                    row_i, columns_order[TRACKING]).value
+            shipment.tracking_id = tracking
 
-            entrecalles = self.sheet.cell(
-                row_i, columns_order[ENTRECALLES]).value
-            shipment.referencia = entrecalles if entrecalles else ""
+            domicilio = ""
+            if columns_order[DOMICILIO] != -1:
+                domicilio = self.sheet.cell(
+                    row_i, columns_order[DOMICILIO]).value
+            shipment.domicilio = domicilio
 
-            cod_postal = self.sheet.cell(
-                row_i, columns_order[COD_POSTAL]).value
-            shipment.codigo_postal = cod_postal if cod_postal else ""
+            entrecalles = ""
+            if columns_order[ENTRECALLES] != -1:
+                entrecalles = self.sheet.cell(
+                    row_i, columns_order[ENTRECALLES]).value
+            shipment.referencia = entrecalles
 
-            localidad = self.sheet.cell(row_i, columns_order[LOCALIDAD]).value
-            shipment.localidad = localidad if localidad else ""
+            cod_postal = ""
+            if columns_order[COD_POSTAL] != -1:
+                cod_postal = self.sheet.cell(
+                    row_i, columns_order[COD_POSTAL]).value
+            shipment.codigo_postal = cod_postal
 
-            partido = self.sheet.cell(row_i, columns_order[PARTIDO]).value
-            shipment.partido = partido if partido else ""
+            localidad = ""
+            if columns_order[LOCALIDAD] != -1:
+                localidad = self.sheet.cell(
+                    row_i, columns_order[LOCALIDAD]).value
+            shipment.localidad = localidad
 
-            dest = self.sheet.cell(row_i, columns_order[DESTINATARIO]).value
-            shipment.destinatario = dest if dest else dest
+            partido = ""
+            if columns_order[PARTIDO] != -1:
+                partido = self.sheet.cell(row_i, columns_order[PARTIDO]).value
+            shipment.partido = partido
 
-            dni = self.sheet.cell(row_i, columns_order[DNI]).value
-            shipment.dni_destinatario = dni if dni else ""
+            dest = ""
+            if columns_order[DESTINATARIO] != -1:
+                dest = self.sheet.cell(
+                    row_i, columns_order[DESTINATARIO]).value
+            shipment.destinatario = dest
 
-            tel = self.sheet.cell(row_i, columns_order[TEL]).value
-            shipment.phone = tel if tel else ""
+            dni = ""
+            if columns_order[DNI] != -1:
+                dni = self.sheet.cell(row_i, columns_order[DNI]).value
+            shipment.dni_destinatario = dni
 
-            detalle = self.sheet.cell(row_i, columns_order[DETALLE]).value
-            shipment.detalle_del_envio = detalle if detalle else "0-1"
+            tel = ""
+            if columns_order[TEL] != -1:
+                tel = self.sheet.cell(row_i, columns_order[TEL]).value
+            shipment.phone = tel
+
+            detalle = "0-1"
+            if columns_order[DETALLE] != -1:
+                detalle = self.sheet.cell(row_i, columns_order[DETALLE]).value
+            shipment.detalle_del_envio = detalle
 
             shipment.clean()
-            shipments.append(shipment)
+            if shipment.is_not_empty():
+                shipments.append(shipment)
         return shipments

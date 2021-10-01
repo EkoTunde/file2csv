@@ -10,3 +10,5 @@ Libraries used:
 * Subprocess
 * pathlib
 * dataclasses
+* openpyxl
+* Unidecode

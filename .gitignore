@@ -6,6 +6,8 @@
 /build
 main.SED
 main.spec
+extractor.spec
+file2csv.spec
 *.pyo
 *.DDF
 *.zip
@@ -14,3 +16,4 @@ main.spec
 /viejo
 /dist/prueba_tienda_mia.txt
 ~$example.xlsx
+commands.txt

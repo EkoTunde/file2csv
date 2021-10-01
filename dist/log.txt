@@ -1,0 +1,1 @@
+couldn't open "C:\Users\jcmac\Projects\python\file2csv\dist\file2csv.gif": no such file or directory

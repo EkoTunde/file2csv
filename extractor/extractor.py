@@ -52,7 +52,8 @@ class Extractor():
             shipments = self.__do_extraction(extension)
             # Return the shipments parsed as a csv
             return (self.__shipments_to_csv(shipments), len(shipments))
-        except ValueError:
+        except ValueError as e:
+            print(e)
             # The file doesn't have an extension.
             raise FileWithNoExtension("File didn't contain an extension.")
 
@@ -86,7 +87,7 @@ class Extractor():
         """Parses all shipments to a csv string and adds the headers.
 
         Args:
-            shipments (list[Shipment2]): the shipments to parse.
+            shipments (list[Shipment]): the shipments to parse.
 
         Returns:
             str: the csv string
