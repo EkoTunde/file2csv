@@ -1,0 +1,1 @@
+pyinstaller --windowed --onefile --hidden-import fitz --hidden-import openpyxl --hidden-import unidecode --hidden-import webbrowser --icon=$PATH$\\file2csv.ico main.py

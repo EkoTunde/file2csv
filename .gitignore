@@ -1,9 +1,9 @@
-/venv
 /env
 /.vscode
 /.pytest_cache
 /__pycache__
 /build
+/dist
 main.SED
 main.spec
 extractor.spec
@@ -12,8 +12,8 @@ file2csv.spec
 *.DDF
 *.zip
 *.exe
-*.zip
-/viejo
-/dist/prueba_tienda_mia.txt
 ~$example.xlsx
 commands.txt
+prueba.pdf
+result.csv
+tiendanube.pdf
