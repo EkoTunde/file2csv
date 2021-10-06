@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 @dataclass
 class Shipment:
-    traking_id: str = ""
+    tracking_id: str = ""
     domicilio: str = ""
     referencia: str = ""
     codigo_postal: str = ""
@@ -21,7 +21,7 @@ class Shipment:
         return
 
     def replace_commas(self):
-        self.traking_id = str(self.traking_id).replace(",", " ")
+        self.tracking_id = str(self.tracking_id).replace(",", " ")
         self.domicilio = str(self.domicilio).replace(",", " ")
         self.referencia = str(self.referencia).replace(",", " ")
         self.codigo_postal = str(self.codigo_postal).replace(",", " ")
@@ -34,7 +34,7 @@ class Shipment:
         return
 
     def replace_accents(self):
-        self.traking_id = unidecode.unidecode(self.traking_id)
+        self.tracking_id = unidecode.unidecode(self.tracking_id)
         self.domicilio = unidecode.unidecode(self.domicilio)
         self.referencia = unidecode.unidecode(self.referencia)
         self.codigo_postal = unidecode.unidecode(self.codigo_postal)
@@ -47,7 +47,7 @@ class Shipment:
         return
 
     def is_not_empty(self):
-        return len(self.traking_id) > 0 or len(self.domicilio) > 0 \
+        return len(self.tracking_id) > 0 or len(self.domicilio) > 0 \
             or len(self.referencia) > 0 \
             or len(self.codigo_postal) > 0 \
             or len(self.localidad) > 0 \

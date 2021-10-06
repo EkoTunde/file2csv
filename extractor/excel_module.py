@@ -92,7 +92,7 @@ class ExcelModule(ShipmentExractorModule):
 
     def __default_columns_order(self):
         return {
-            'TRACKING ID MERCADO LIBRE': 0, 'DOMICILIO': 1, 'ENTRECALLES': 2,
+            'ID FLEX': 0, 'DOMICILIO': 1, 'ENTRECALLES': 2,
             'CODIGO POSTAL': 3, 'LOCALIDAD': 4, 'PARTIDO': 5,
             'DESTINATARIO': 6, 'DNI DESTINATARIO': 7,
             'TELEFONO DESTINATARIO': 8, 'DETALLE DEL ENVIO': 9,
@@ -103,7 +103,7 @@ class ExcelModule(ShipmentExractorModule):
         # Iterate over the first row's values and ther indexes
 
         # Default columns list
-        columns = ['TRACKING ID MERCADO LIBRE',
+        columns = ['ID FLEX',
                    'DOMICILIO',
                    'ENTRECALLES',
                    'CODIGO POSTAL',
@@ -121,6 +121,7 @@ class ExcelModule(ShipmentExractorModule):
             columns_order[value] = col
             # Removes item from defaults columns list
             columns.remove(value)
+        print("remaining columns", columns)
 
         # If any default column remains, give then -1 order in dict
         for column in columns:
@@ -134,7 +135,7 @@ class ExcelModule(ShipmentExractorModule):
             list[Shipment]: shipments found.
         """
 
-        TRACKING = 'TRACKING ID MERCADO LIBRE'
+        TRACKING = 'ID FLEX'
         DOMICILIO = 'DOMICILIO'
         ENTRECALLES = 'ENTRECALLES'
         COD_POSTAL = 'CODIGO POSTAL'
@@ -155,6 +156,7 @@ class ExcelModule(ShipmentExractorModule):
             if columns_order[TRACKING] != -1:
                 tracking = self.sheet.cell(
                     row_i, columns_order[TRACKING]).value
+                print("tracking", tracking)
             shipment.tracking_id = tracking
 
             domicilio = ""
@@ -205,8 +207,8 @@ class ExcelModule(ShipmentExractorModule):
             detalle = "0-1"
             if columns_order[DETALLE] != -1:
                 detalle = self.sheet.cell(row_i, columns_order[DETALLE]).value
-            shipment.detalle_del_envio = detalle
-
+            shipment.detalle_envio = detalle
+            print(shipment)
             shipment.clean()
             if shipment.is_not_empty():
                 shipments.append(shipment)

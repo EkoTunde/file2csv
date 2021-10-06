@@ -6,10 +6,6 @@ import tkinter as tk
 from tkinter import Button, Toplevel, filedialog, messagebox, Text, INSERT
 from extractor.extractor import Extractor
 
-EXCEL_INSTRUCTIONS = """
-
-"""
-
 
 class Application(tk.Frame):
 

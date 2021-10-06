@@ -110,7 +110,7 @@ class Extractor():
             str: the corresponding csv file's row.
         """
         values = [
-            shipment.traking_id, shipment.domicilio, shipment.referencia,
+            shipment.tracking_id, shipment.domicilio, shipment.referencia,
             shipment.codigo_postal, shipment.localidad, shipment.partido,
             shipment.destinatario, shipment.dni_destinatario,
             shipment.phone, shipment.detalle_envio,
